@@ -236,12 +236,34 @@ function getKey(a){
   return"seitai";
 }
 
+
+// === Google Sheets 集計送信 ===
+const GAS_URL = "https://script.google.com/macros/s/AKfycbzNNcj-OtgHL4gVjML3ddAW2jzY05OxlLyk_8hpBotdLrsR83RKjQl-bdbrsIaBeeusJw/exec";
+function sendToSheet(answers, resultKey) {
+  try {
+    fetch(GAS_URL, {
+      method: "POST",
+      body: JSON.stringify({
+        gender: answers.gender || "",
+        age: answers.age || "",
+        symptom: answers.symptom || "",
+        duration: answers.duration || "",
+        pain: answers.pain || "",
+        flag: answers.flag || "",
+        history: answers.history || [],
+        result: resultKey
+      })
+    });
+  } catch(e) {}
+}
+
 function img(key,size){
   return `<img src="${ICONS[key]}" width="${size}" height="${size}" style="object-fit:contain">`;
 }
 
 function buildResult(a){
   const k=getKey(a);
+  sendToSheet(a, k);
   const r=RS[k];
   const h=a.history||[];
   const usedSeikotsu=h.includes("seikotsu_ng");
