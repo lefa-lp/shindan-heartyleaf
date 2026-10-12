@@ -239,19 +239,32 @@ function getKey(a){
 
 // === Google Sheets 集計送信 ===
 const GAS_URL = "https://script.google.com/macros/s/AKfycbzNNcj-OtgHL4gVjML3ddAW2jzY05OxlLyk_8hpBotdLrsR83RKjQl-bdbrsIaBeeusJw/exec";
+const GENDER_JP={male:"男性",female:"女性"};
+const AGE_JP={teen:"10代",s20:"20代",s30:"30代",s40:"40代",s50:"50代",s60:"60代",s70:"70代",s80:"80代以上"};
+const SYMPTOM_JP={back:"腰・背中",shoulder:"肩・首",head:"頭痛・めまい",leg:"膝・股関節・足",arm:"手・腕のしびれ"};
+const DURATION_JP={acute:"急に始まった",weeks:"1〜4週間",months:"1か月以上",chronic:"何年も繰り返している"};
+const PAIN_JP={severe:"強い痛みで動けない",moderate:"日常に支障あり",mild:"気になるが動ける",discomfort:"だるさ・不快感"};
+const FLAG_JP={red_flag:"発熱・体重減少・夜間痛",nerve:"しびれ・脱力",injury:"ケガが原因",none:"なし"};
+const HISTORY_JP={hospital_ng:"病院→効果なし",massage:"マッサージ通院中",seikotsu_ng:"整骨院→効果なし",acupuncture:"鍼灸経験あり",none:"どこにも行っていない"};
+const RESULT_JP={emergency:"まず病院へ",teen:"病院・整骨院おすすめ",all_tried:"全部試した→来院へ",hosp:"病院済み→整体へ",nerve_hosp:"病院確認済み→整体へ",heiyou:"病院との併用おすすめ",acup:"頭痛→鍼灸or整体",multi:"複数試した→整体へ",seitai:"整体おすすめ",acute_seikotsu:"整骨院おすすめ"};
+
 function sendToSheet(answers, resultKey) {
   try {
+    const historyArr = answers.history || [];
     fetch(GAS_URL, {
       method: "POST",
+      mode: "no-cors",
+      headers: {"Content-Type":"application/json"},
       body: JSON.stringify({
-        gender: answers.gender || "",
-        age: answers.age || "",
-        symptom: answers.symptom || "",
-        duration: answers.duration || "",
-        pain: answers.pain || "",
-        flag: answers.flag || "",
-        history: answers.history || [],
-        result: resultKey
+        gender: GENDER_JP[answers.gender] || answers.gender || "",
+        age: AGE_JP[answers.age] || answers.age || "",
+        symptom: SYMPTOM_JP[answers.symptom] || answers.symptom || "",
+        duration: DURATION_JP[answers.duration] || answers.duration || "",
+        pain: PAIN_JP[answers.pain] || answers.pain || "",
+        flag: FLAG_JP[answers.flag] || answers.flag || "",
+        history: historyArr.map(h=>HISTORY_JP[h]||h).join("・"),
+        result: RESULT_JP[resultKey] || resultKey,
+        clinic: "ハーティラフ"
       })
     });
   } catch(e) {}
